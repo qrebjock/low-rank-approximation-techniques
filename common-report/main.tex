@@ -1,0 +1,83 @@
+
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{natbib}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{amssymb,amsmath, amsthm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{commath}
+\usepackage{natbib}
+
+\input{defs}
+
+% set page geometry
+\usepackage[verbose=true,letterpaper]{geometry}
+\AtBeginDocument{
+  \newgeometry{
+    textheight=9in,
+    textwidth=5.5in,
+    top=1in,
+    headheight=12pt,
+    headsep=25pt,
+    footskip=30pt
+  }
+}
+
+\title{Leverage score sampling}
+% \author{
+% }
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Questions}
+\label{sec:questions}
+
+Let $A = U \Sigma V^T$ be the SVD decomposition of $A \in \reals^{m \times n}$
+and note $r$ the rank of $A$.
+Then
+\begin{align*}
+  \begin{cases}
+    AA^\top = U \Sigma^2 U^\top\\
+    (AA^\top)^\dagger = U \Sigma^{\dagger 2} U^\top,
+  \end{cases}
+\end{align*}
+where $\dagger$ denotes the pseudo-inverse.
+Moreover it holds that for any $i$
+\begin{align*}
+  a_i = U \Sigma v_i,
+\end{align*}
+from which we deduce
+\begin{align*}
+  \ell_i(A) &= a_i^\top (A A^\top)^\dagger a_i\\
+            &= v_i^\top \Sigma^\top \Sigma^{\dagger 2} \Sigma v_i\\
+            &= v_i^\top I_r v_i\\
+            &= \sum_{j = 1}^r v_{ji}^2,
+\end{align*}
+where $I_r$ is the diagonal matrix whose $r$ first entries are ones and the rest
+is zero.
+
+\begin{enumerate}
+\item \begin{enumerate}[label=\alph*)]
+  \item From the previous identity we deduce immediately that $\ell_i(A) \leq 1$
+    (as $V$ is orthogonal).
+  \item
+    \begin{align*}
+      \sum_{i = 1}^n \ell_i(A) &= \sum_{i = 1}^n \sum_{j = 1}^r v_{ji}^2\\
+                               &= \sum_{j = 1}^r \sum_{i = 1}^n v_{ji}^2\\
+                               &= r.
+    \end{align*}
+  \item Let $i$ be such that the column $a_i$ is orthogonal to all others.
+  \end{enumerate}
+\end{enumerate}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

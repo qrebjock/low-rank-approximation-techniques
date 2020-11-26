@@ -1,0 +1,65 @@
+\newcommand{\QED}{~~\rule[-1pt]{6pt}{6pt}}\def\qed{\QED}
+
+% Numbering (by section, then sequential)
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\renewenvironment{proof}{\textbf{Proof.}}{\QED\bigskip}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem*{remark}{Remark}
+
+% text abbrevs
+\newcommand{\cf}{{\it cf.}}
+\newcommand{\eg}{{\it e.g.}}
+\newcommand{\ie}{{\it i.e.}}
+\newcommand{\etc}{{\it etc.}}
+\newcommand{\ones}{\mathbf 1}
+\newcommand{\zeros}{\mathbf 0}
+
+% std math stuff
+\newcommand{\reals}{{\mathbb R}}
+\newcommand{\sreals}{\scriptsize{\mbox{\bf R}}}
+\newcommand{\integers}{{\bf Z}}
+\newcommand{\naturals}{{\bf N}}
+\newcommand{\eqbydef}{\mathrel{\stackrel{\Delta}{=}}}
+\newcommand{\complex}{{\mbox{\bf C}}}
+\newcommand{\symm}{{\mbox{\bf S}}}  % symmetric matrices
+\DeclareMathOperator{\Tr}{Tr}
+
+% probability stuff
+\newcommand{\Expect}{{\bf E}}
+\newcommand{\Normal}{\mathcal{N}}
+% \newcommand{\Expect}{\textstyle\mathop{\bf E}}
+\newcommand{\Median}{\textstyle\mathop{\bf M}}
+\newcommand{\Prob}{\mathop{\bf Prob}}
+\newcommand{\erf}{\mathop{\bf erf}}
+\newcommand{\indep}{\perp \!\!\! \perp}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+
+% \DeclarePairedDelimiter\abs{\lvert}{\rvert}
+% \DeclarePairedDelimiter\norm{\lVert}{\rVert}
+
+% paper specific stuff
+% \newcommand{\diag}{\mathop{\bf diag}}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\grad}{grad}
+\DeclareMathOperator{\hess}{Hess}
+\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\acosh}{acosh}
+\DeclareMathOperator{\PT}{PT}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\sym}{Sym}
+\DeclareMathOperator{\sksym}{Skew}
+\DeclareMathOperator{\nullspace}{null}
+\DeclareMathOperator{\vecspan}{span}
+\DeclareMathOperator{\proj}{proj}
+% \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\DeclarePairedDelimiterX{\inner}[2]{\langle}{\rangle}{#1, #2}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
