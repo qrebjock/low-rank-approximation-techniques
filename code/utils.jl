@@ -2,6 +2,12 @@ using LinearAlgebra
 using StatsBase
 
 
+function best_approx(A, k)
+    U, _, _ = svd(A);
+    return U[:, 1:k]
+end
+
+
 function ell(A, i; λ=0)
     ai = A[:, i]
     return ai' * pinv(A * A' + λ^2 * I) * ai
@@ -62,6 +68,13 @@ function hilbert(n)
 end
 
 
+function robustproj(A, tol=1e-12)
+    U, s, _ = svd(A)
+    k = sum(s .> tol)
+    return U[:, 1:k] * U[:, 1:k]'
+end
+
+
 function approxerror(A, C)
-    return norm(A - C * pinv(C) * A)
+    return norm(A - robustproj(C) * A)
 end
