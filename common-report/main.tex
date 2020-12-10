@@ -28,54 +28,224 @@
 }
 
 \title{Leverage score sampling}
-% \author{
-% }
+\author{Quentin Rebjock}
 \date{\today}
 
 \begin{document}
 
 \maketitle
 
-\section{Questions}
-\label{sec:questions}
+\section{Notations}\label{sec:notations}
 
-Let $A = U \Sigma V^T$ be the SVD decomposition of $A \in \reals^{m \times n}$
-and note $r$ the rank of $A$.
-Then
+We note $I_n$ the identity matrix of size $n$, or simply $I$ when the size is
+inferred by context.
+We note $e_i$ the $i$th canonical vector, that is the $i$th column of the
+identity whose size is inferred by context.
+For any matrix $A \in \reals^{m \times n}$ we note $a_1, \dots, a_n$ its columns
+and $A_{i,:}$ its $i$th row.
+
+\section{Leverage scores analysis}\label{sec:questions}
+
+\subsection{Problem statement}\label{subsec:probstat}
+
+Let $A \in \reals^{m \times n}$ be a matrix of rank $r$ whose columns are noted
+$a_1, \dots, a_n$.
+We study the \textit{leverage scores} of $A$, that is the quantity
+\begin{align*}
+  \ell_i(A) = a_i^\top (A A^\top)^\dagger a_i
+\end{align*}
+for the $i$th column of $A$.
+We also consider the \textit{Ridge} leverage scores, which are regularized by a
+parameter $\lambda > 0$ as follows
+\begin{align*}
+  \ell_{i,\lambda}(A) = a_i^\top (A A^\top + \lambda^2 I)^{-1} a_i.
+\end{align*}
+
+\subsection{Preliminaries}\label{subsec:preliminaries}
+
+Before analyzing the scores we derive convenient expressions for the columns of
+$A$ and the leverage scores in terms of its singular value decomposition (SVD).
+We note $A = U \Sigma V^T$ the thin SVD of $A$,
+where $U \in \reals^{m \times r}$ and $V \in \reals^{n \times r}$ have
+orthogonal columns, and
+\begin{align*}
+  \Sigma =
+  \begin{bmatrix}
+    \sigma_1 & & \\
+    & \ddots & \\
+    & & \sigma_r
+  \end{bmatrix}
+\end{align*}
+is a diagonal matrix such that $\sigma_1 \geq \cdots \geq \sigma_r > 0$.
+Then the symmetric matrix $A A^\top$ depends only on the left singular vectors
+$U$, and
 \begin{align*}
   \begin{cases}
     AA^\top = U \Sigma^2 U^\top\\
-    (AA^\top)^\dagger = U \Sigma^{\dagger 2} U^\top,
+    (AA^\top)^\dagger = U \Sigma^{-2} U^\top,
   \end{cases}
 \end{align*}
-where $\dagger$ denotes the pseudo-inverse.
-Moreover it holds that for any $i$
-\begin{align*}
-  a_i = U \Sigma v_i,
-\end{align*}
-from which we deduce
-\begin{align*}
-  \ell_i(A) &= a_i^\top (A A^\top)^\dagger a_i\\
-            &= v_i^\top \Sigma^\top \Sigma^{\dagger 2} \Sigma v_i\\
-            &= v_i^\top I_r v_i\\
-            &= \sum_{j = 1}^r v_{ji}^2,
-\end{align*}
-where $I_r$ is the diagonal matrix whose $r$ first entries are ones and the rest
-is zero.
+where $\dagger$ denotes the Moore–Penrose pseudo-inverse.
+Moreover it holds that for any index $i$, the $i$th column of $A$ can be written
+as
+\begin{align}\label{eq:acol}
+  a_i &= U \Sigma V^\top e_i\nonumber\\
+      &= U \Sigma V_{i,:},
+\end{align}
+from which we deduce the equality
+\begin{align}\label{eq:ellid}
+  \ell_i(A) &= a_i^\top (A A^\top)^\dagger a_i\nonumber\\
+            &= V_{i,:}^\top \Sigma^\top \Sigma^{-2} \Sigma V_{i,:}\nonumber\\
+            &= V_{i,:}^\top I_r V_{i,:}\nonumber\\
+            &= \sum_{j = 1}^r v_{ij}^2.
+\end{align}
 
-\begin{enumerate}
-\item \begin{enumerate}[label=\alph*)]
-  \item From the previous identity we deduce immediately that $\ell_i(A) \leq 1$
-    (as $V$ is orthogonal).
-  \item
-    \begin{align*}
-      \sum_{i = 1}^n \ell_i(A) &= \sum_{i = 1}^n \sum_{j = 1}^r v_{ji}^2\\
-                               &= \sum_{j = 1}^r \sum_{i = 1}^n v_{ji}^2\\
-                               &= r.
-    \end{align*}
-  \item Let $i$ be such that the column $a_i$ is orthogonal to all others.
-  \end{enumerate}
+\subsection{Analysis}\label{subsec:analysis}
+
+\subsubsection{Question 1}\label{subsubsec:q1}
+
+\begin{enumerate}[label=\alph*)]
+\item As $V$ has orthogonal columns there exist an orthogonal matrix $V_\bot$
+  such that $\overline{V} =
+  \begin{bmatrix}
+    V & V_\bot
+  \end{bmatrix} \in \reals^{n \times n}
+  $ is orthogonal.
+  From this and identity~\eqref{eq:ellid} we deduce that
+  \begin{align*}
+    \ell_i(A) &= \sum_{j = 1}^r v_{ij}^2\\
+              &\leq \sum_{j = 1}^n \overline{v}_{ij}^2\\
+              &\leq 1.
+  \end{align*}
+\item We show that the sum of all leverage scores equals the rank of $A$.
+  From identity~\ref{eq:ellid}, we compute
+  \begin{align*}
+    \sum_{i = 1}^n \ell_i(A) &= \sum_{i = 1}^n \sum_{j = 1}^r v_{ij}^2\\
+                            &= \sum_{j = 1}^r \sum_{i = 1}^n v_{ij}^2\\
+                            &= r,
+  \end{align*}
+  where the last equality comes from the fact that $V$ has orthogonal columns
+  (with unit norm).
+\item Let $j$ be such that the column $a_j$ is orthogonal to all others.
+  We want to prove that $\ell_j(A) = 1$.
+  Without loss of generality, we may
+  assume that $j = 1$ by permuting the columns of $A$.
+  Identity~\eqref{eq:acol} gives that for any index $i > 1$,
+  \begin{align*}
+    a_1^\top a_i &= V_{1,:}^\top \Sigma^2 V_{i,:}\\
+    &= 0,
+  \end{align*}
+  which yields
+  \begin{align}\label{eq:orthocol}
+    V \Sigma^2 V^\top =
+    \begin{bmatrix*}
+      c & \zeros^\top\\
+      \zeros & *
+    \end{bmatrix*} \in \reals^{n \times n},
+  \end{align}
+  where $c$ is some positive number.
+  Let $V_\bot \in \reals^{n \times (n - r)}$ be such that $\overline{V} =
+  \begin{bmatrix}
+    V & V_\bot
+  \end{bmatrix} \in \reals^{n \times n}
+  $ is orthogonal.
+  Then multiplying Equation~\eqref{eq:orthocol} by $V_\bot$ gives that
+  \begin{align*}
+    \begin{bmatrix*}
+      c & \zeros^\top\\
+      \zeros & *
+    \end{bmatrix*} V_\bot = \zeros_{n \times (n - r)},
+  \end{align*}
+  which implies that the first line of $V_\bot$ is null (as $c$ is positive).
+  Since $\overline{V}$ is orthogonal, we deduce that $\norm{V_{1,:}}^2 = 1$,
+  which yields $\ell_1(A) = 1$ according to identity~\eqref{eq:ellid}.
+\item Proven in Section~\ref{subsec:preliminaries}, Equation~\eqref{eq:ellid}.
 \end{enumerate}
+
+\subsubsection{Question 2}\label{subsubsec:q2}
+
+Let $\lambda \geq 0$  be a regularization parameter for the Ridge
+leverage scores.
+Using the fact that $U$ has orthogonal columns, the matrix $A A^\top +
+\lambda^2 I = U \Sigma^2 U^\top + \lambda^2 I$ can be factorized as $U\left(
+  \Sigma^2 + \lambda^2 I \right) U^\top$.
+From this we deduce that
+\begin{align*}
+  \ell_{i,\lambda}(A) &= V_{i,:}^\top \Sigma \left( \Sigma^2 + \lambda^2 I \right)^{-1} \Sigma V_{i,:}\\
+                      &= V_{i,:}^\top \Delta V_{i,:}\\
+                      &= \sum_{j = 1}^r \frac{\sigma_j^2}{\sigma_j^2 + \lambda^2} v_{ij}^2
+\end{align*}
+where
+\begin{align*}
+  \Delta = \Sigma \left( \Sigma^2 + \lambda^2 I \right)^{-1} \Sigma =
+  \begin{bmatrix}
+    \frac{\sigma_1^2}{\sigma_1^2 + \lambda^2} & & \\
+    & \ddots & \\
+    & & \frac{\sigma_r^2}{\sigma_r^2 + \lambda^2}
+  \end{bmatrix}
+\end{align*}
+is an $r \times r$ diagonal matrix.
+
+Now let $A \in \reals^{m \times n}$ (with $m \geq n$) be a matrix such that
+\begin{align*}
+  \sigma_1 \geq \cdots \geq \sigma_k \gg \lambda \gg \sigma_{k + 1} \geq \cdots \geq \sigma_n > 0.
+\end{align*}
+Then $A$ is full-rank ($r = n$) since $\sigma_n > 0$.
+We conclude using Question 1.d (Section~\ref{subsubsec:q1}) that all the
+leverage scores are equal to $1$, as the rows of $V$ all have unit norm.
+However,
+\begin{align*}
+  \delta_i \approx
+  \begin{cases}
+    1 \text{ when } 1 \leq i \leq k,\\
+    0 \text{ when } k < i \leq n,
+  \end{cases}
+\end{align*}
+which yields that
+\begin{align*}
+  \ell_{i,\lambda}(A) &= \sum_{j = 1}^n \delta_j v_{ij}^2\\
+                      &\approx \sum_{j = 1}^k v_{ij}^2
+\end{align*}
+which is the squared norm of the $i$th row of the right singular vectors of
+the truncated SVD of $A$.
+
+\section{Experiments}\label{sec:experiments}
+
+We wish to approximate the range of $A$ by a matrix with $k$ columns, where we
+think of $k$ as a small number.
+More specifically we sample from the columns of $A$ independently at random,
+with replacement.
+A positive weight is assigned to every column and its probability to be sampled
+is proportional to this weight.
+We implement the following sampling strategies in Julia:
+\begin{itemize}
+\item Weights equal to Ridge leverage scores, with $\lambda = 10^{-4}$;
+\item Uniform sampling;
+\item Weights equal to the squares of the norms of the columns of $A$.
+\end{itemize}
+We consider the $100 \times 100$ Hilbert matrix $A$, which has rank $\leq 20$
+(numerical instabilities prevent from computing the exact rank).
+For every $k \in [50]$, we sample columns to form a matrix $C$ according to the
+three strategies described above, and measure the error $\|A - C C^\dagger A\|$.
+We repeat this process $200$ times and plot the average error in
+Figure~\ref{fig:stratcomp}.
+\begin{figure}[h!]
+  \centering
+  \begin{minipage}[b]{\textwidth}
+    \includegraphics[width=\textwidth]{../code/plot.pdf}
+  \end{minipage}
+  \caption{
+    Average error $\|A - C C^\dagger A\|$ over $200$ trials for each method as a
+    function of $k$, where $C$ contains $k$ columns sampled from $A$
+    independently and with replacement.
+    The black curve is the best error that can be obtained from a matrix with
+    $k$ columns.
+  }\label{fig:stratcomp}
+\end{figure}
+We see that the Ridge leverage scores sampling yields the lowest error in
+average.
+However sampling columns proportionally to the squared norms performs reasonably
+well at a much lower computational cost.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
