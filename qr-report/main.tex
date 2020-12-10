@@ -105,8 +105,8 @@ from which we deduce the equality
 \subsubsection{Question 1}\label{subsubsec:q1}
 
 \begin{enumerate}[label=\alph*)]
-\item As $V$ has orthogonal columns there exist an orthogonal matrix $V_\bot$
-  such that $\overline{V} =
+\item As $V$ has orthogonal columns there exist a matrix $V_\bot$ with
+  orthonormal columns such that $\overline{V} =
   \begin{bmatrix}
     V & V_\bot
   \end{bmatrix} \in \reals^{n \times n}
@@ -124,7 +124,7 @@ from which we deduce the equality
                             &= \sum_{j = 1}^r \sum_{i = 1}^n v_{ij}^2\\
                             &= r,
   \end{align*}
-  where the last equality comes from the fact that $V$ has orthogonal columns
+  where the last equality comes from the fact that $V$ has orthonormal columns
   (with unit norm).
 \item Let $j$ be such that the column $a_j$ is orthogonal to all others.
   We want to prove that $\ell_j(A) = 1$.
@@ -166,7 +166,7 @@ from which we deduce the equality
 
 Let $\lambda \geq 0$  be a regularization parameter for the Ridge
 leverage scores.
-Using the fact that $U$ has orthogonal columns, the matrix $A A^\top +
+Using the fact that $U$ has orthonormal columns, the matrix $A A^\top +
 \lambda^2 I = U \Sigma^2 U^\top + \lambda^2 I$ can be factorized as $U\left(
   \Sigma^2 + \lambda^2 I \right) U^\top$.
 From this we deduce that
