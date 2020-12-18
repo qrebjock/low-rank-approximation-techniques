@@ -1,4 +1,3 @@
-
 \documentclass{article}
 
 \usepackage[utf8]{inputenc}
@@ -27,7 +26,7 @@
   }
 }
 
-\title{Leverage score sampling}
+\title{Low-rank approximation techniques \\ \Large Leverage score sampling}
 \author{Quentin Rebjock}
 \date{\today}
 
@@ -38,7 +37,7 @@
 \section{Notations}\label{sec:notations}
 
 We note $I_n$ the identity matrix of size $n$, or simply $I$ when the size is
-inferred by context.
+not ambiguous.
 We note $e_i$ the $i$th canonical vector, that is the $i$th column of the
 identity whose size is inferred by context.
 For any matrix $A \in \reals^{m \times n}$ we note $a_1, \dots, a_n$ its columns
@@ -48,15 +47,14 @@ and $A_{i,:}$ its $i$th row.
 
 \subsection{Problem statement}\label{subsec:probstat}
 
-Let $A \in \reals^{m \times n}$ be a matrix of rank $r$ whose columns are noted
-$a_1, \dots, a_n$.
+Let $A \in \reals^{m \times n}$ be a matrix of rank $r$.
 We study the \textit{leverage scores} of $A$, that is the quantity
 \begin{align*}
   \ell_i(A) = a_i^\top (A A^\top)^\dagger a_i
 \end{align*}
 for the $i$th column of $A$.
 We also consider the \textit{Ridge} leverage scores, which are regularized by a
-parameter $\lambda > 0$ as follows
+parameter $\lambda > 0$ as follows:
 \begin{align*}
   \ell_{i,\lambda}(A) = a_i^\top (A A^\top + \lambda^2 I)^{-1} a_i.
 \end{align*}
@@ -67,7 +65,7 @@ Before analyzing the scores we derive convenient expressions for the columns of
 $A$ and the leverage scores in terms of its singular value decomposition (SVD).
 We note $A = U \Sigma V^T$ the thin SVD of $A$,
 where $U \in \reals^{m \times r}$ and $V \in \reals^{n \times r}$ have
-orthogonal columns, and
+orthonormal columns, and
 \begin{align*}
   \Sigma =
   \begin{bmatrix}
@@ -105,8 +103,9 @@ from which we deduce the equality
 \subsubsection{Question 1}\label{subsubsec:q1}
 
 \begin{enumerate}[label=\alph*)]
-\item As $V$ has orthogonal columns there exist a matrix $V_\bot$ with
-  orthonormal columns such that $\overline{V} =
+\item Leverage scores are always non-negative and bounded by 1.
+  As $V$ has orthonormal columns there exist a matrix $V_\bot \in \reals^{n
+    \times (n - r)}$ with orthonormal columns such that $\overline{V} =
   \begin{bmatrix}
     V & V_\bot
   \end{bmatrix} \in \reals^{n \times n}
@@ -125,7 +124,7 @@ from which we deduce the equality
                             &= r,
   \end{align*}
   where the last equality comes from the fact that $V$ has orthonormal columns
-  (with unit norm).
+  (with unit norm in particular).
 \item Let $j$ be such that the column $a_j$ is orthogonal to all others.
   We want to prove that $\ell_j(A) = 1$.
   Without loss of generality, we may
@@ -179,35 +178,40 @@ where
 \begin{align*}
   \Delta = \Sigma \left( \Sigma^2 + \lambda^2 I \right)^{-1} \Sigma =
   \begin{bmatrix}
-    \frac{\sigma_1^2}{\sigma_1^2 + \lambda^2} & & \\
+    \delta_1 = \frac{\sigma_1^2}{\sigma_1^2 + \lambda^2} & & \\
     & \ddots & \\
-    & & \frac{\sigma_r^2}{\sigma_r^2 + \lambda^2}
+    & & \delta_r = \frac{\sigma_r^2}{\sigma_r^2 + \lambda^2}
   \end{bmatrix}
 \end{align*}
 is an $r \times r$ diagonal matrix.
 
 Now let $A \in \reals^{m \times n}$ (with $m \geq n$) be a matrix such that
-\begin{align*}
+\begin{align}\label{eq:spectral-ineq}
   \sigma_1 \geq \cdots \geq \sigma_k \gg \lambda \gg \sigma_{k + 1} \geq \cdots \geq \sigma_n > 0.
-\end{align*}
+\end{align}
 Then $A$ is full-rank ($r = n$) since $\sigma_n > 0$.
 We conclude using Question 1.d (Section~\ref{subsubsec:q1}) that all the
 leverage scores are equal to $1$, as the rows of $V$ all have unit norm.
-However,
+So leverage scores sampling corresponds to uniform sampling.
+However, the situation is different for Ridge scores sampling.
+Inequalities~\eqref{eq:spectral-ineq} imply that the diagonal elements of
+$\Delta$ are all either very close to 0 or 1, that is,
 \begin{align*}
   \delta_i \approx
   \begin{cases}
     1 \text{ when } 1 \leq i \leq k,\\
-    0 \text{ when } k < i \leq n,
+    0 \text{ when } k < i \leq n.
   \end{cases}
 \end{align*}
-which yields that
+This yields that
 \begin{align*}
   \ell_{i,\lambda}(A) &= \sum_{j = 1}^n \delta_j v_{ij}^2\\
                       &\approx \sum_{j = 1}^k v_{ij}^2
 \end{align*}
 which is the squared norm of the $i$th row of the right singular vectors of
 the truncated SVD of $A$.
+So we expect Ridge leverage scores sampling to yield an approximation of the
+space spanned by the $k$ dominant left singular vectors of $A$.
 
 \section{Experiments}\label{sec:experiments}
 
@@ -215,16 +219,16 @@ We wish to approximate the range of $A$ by a matrix with $k$ columns, where we
 think of $k$ as a small number.
 More specifically we sample from the columns of $A$ independently at random,
 with replacement.
-A positive weight is assigned to every column and its probability to be sampled
-is proportional to this weight.
+The probability to sample a column is proportional to a positive weight
+associated to it.
 We implement the following sampling strategies in Julia:
 \begin{itemize}
-\item Weights equal to Ridge leverage scores, with $\lambda = 10^{-4}$;
 \item Uniform sampling;
-\item Weights equal to the squares of the norms of the columns of $A$.
+\item Weights equal to the squares of the norms of the columns of $A$;
+\item Weights equal to Ridge leverage scores, with $\lambda = 10^{-4}$.
 \end{itemize}
-We consider the $100 \times 100$ Hilbert matrix $A$, which has rank $\leq 20$
-(numerical instabilities prevent from computing the exact rank).
+We consider the $100 \times 100$ Hilbert matrix $A$, whose rank is lower than
+$20$ (numerical errors prevent from computing the exact rank).
 For every $k \in [50]$, we sample columns to form a matrix $C$ according to the
 three strategies described above, and measure the error $\|A - C C^\dagger A\|$.
 We repeat this process $200$ times and plot the average error in
@@ -235,9 +239,9 @@ Figure~\ref{fig:stratcomp}.
     \includegraphics[width=\textwidth]{../code/plot.pdf}
   \end{minipage}
   \caption{
-    Average error $\|A - C C^\dagger A\|$ over $200$ trials for each method as a
-    function of $k$, where $C$ contains $k$ columns sampled from $A$
-    independently and with replacement.
+    Average error $\|A - C C^\dagger A\|$ ($\log$ scale) over $200$ trials for
+    each method as a function of $k$, where $C$ contains $k$ columns sampled
+    from $A$ independently and with replacement.
     The black curve is the best error that can be obtained from a matrix with
     $k$ columns.
   }\label{fig:stratcomp}
@@ -246,6 +250,13 @@ We see that the Ridge leverage scores sampling yields the lowest error in
 average.
 However sampling columns proportionally to the squared norms performs reasonably
 well at a much lower computational cost.
+
+\paragraph{Technical detail:}
+In the computation of the error term, the projection $C C^\dagger A$ is unstable
+if it is evaluated directly via matrix products.
+Instead, we compute an SVD of $C$ and form the projector $C C^\dagger$ from the
+left singular vectors associated to non-null singular values.
+
 
 \bibliographystyle{plainnat}
 \bibliography{references}
